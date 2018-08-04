@@ -48,7 +48,9 @@ hContour = contourf(X,Y,V);
 hColorbar = colorbar;
 ylabel(hColorbar,'Electric potential (V)')
 
-[Ex,Ey]=gradient(V);
+[Ex,Ey] = gradient(V);
+Ex = -1*Ex;
+Ey = -1*Ey;
 figure
 contour(X,Y,V);
 figure
@@ -67,3 +69,14 @@ E_max = max(max(E))
 
 
 E_max_direction = atan(Ey(E_max_x,E_max_y)/Ex(E_max_x,E_max_y))
+
+
+rho = divergence(X,Y,Ex,Ey);
+
+Q=0;
+
+for i = y1:y1+l1
+   Q = Q + rho(x1,i);
+end
+
+ Cap = Q * 5 * 8.85 * 1e-12 
