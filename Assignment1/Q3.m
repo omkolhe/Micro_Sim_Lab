@@ -17,8 +17,8 @@ y = linspace(1,Ny,Ny);
 
 V = zeros(Nx,Ny);
 
-V(x1,y1:y1+l1) = 0;
-V(x2:x2+l2,y2) = 1;
+V(x1,y1:y1+l1) = 1;
+V(x2:x2+l2,y2) = 0;
 
 iter=3000;
 
@@ -39,13 +39,19 @@ while count<iter
     end
     count=count+1;
 end
-
+figure
 surf(X,Y,V)
 view(2)
+
+figure
+hContour = contourf(X,Y,V);
+hColorbar = colorbar;
+ylabel(hColorbar,'Electric potential (V)')
 
 [Ex,Ey]=gradient(V);
 figure
 contour(X,Y,V);
+figure
 hold on
 quiver(Ex,Ey,4)
 hold off
@@ -55,4 +61,9 @@ figure
 E = Ex^2 + Ey^2;
 surf(X,Y,E)
 view(2)
-  
+
+E_max = max(max(E))
+[E_max_x,E_max_y] = find(E==E_max)
+
+
+E_max_direction = atan(Ey(E_max_x,E_max_y)/Ex(E_max_x,E_max_y))
