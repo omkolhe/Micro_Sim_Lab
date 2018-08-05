@@ -22,7 +22,7 @@ V = zeros(Nx,Ny);
 V(x1,y1:y1+l1) = 1;
 V(x2,y2:y2+l2) = 0;
 
-iter=500;
+iter=3000;
 
 count=0;
 while count<iter

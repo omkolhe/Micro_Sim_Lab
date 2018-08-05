@@ -68,7 +68,7 @@ E_max = max(max(E))
 [E_max_x,E_max_y] = find(E==E_max)
 
 
-E_max_direction = atan(Ey(E_max_x,E_max_y)/Ex(E_max_x,E_max_y))
+E_max_direction = atan(Ex(E_max_x,E_max_y)/Ey(E_max_x,E_max_y))
 
 
 rho = divergence(X,Y,Ex,Ey);
