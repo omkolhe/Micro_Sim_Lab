@@ -16,8 +16,8 @@ Lap(1,1) = -2;
 Lap(N,N) = -1;
 
 rho(1:200) = 0.0;
-rho(201:250) = 5.0;
-rho(251:500) = -1.0;
+rho(201:250) = linspace(0,5,50);
+rho(251:500) = linspace(-1,0,250);
 rho(501:701) = 0.0;
 
 figure(1)
@@ -25,5 +25,10 @@ plot(rho);
 
 V = -1*inv(Lap)*rho;
 
+E = gradient(V);
+E = -1*E;
 figure(2)
+plot(E);
+
+figure(3)
 plot(V);
