@@ -1,0 +1,125 @@
+%% Constants
+eps_0 = 8.85e-12; %Vacuum dielectric constant
+eps = 11.7*eps_0; %Dielectric constant of Si
+q = 1.6e-19;      %Charge of an electron
+nm = 1;           %Nanometer
+um = 1e-6;        %Micromter
+DOP = 1e12*1e6;   %Doping level
+ni = 1e10*1e6;    %Intrinsic carrier concentration
+mu = 0.1;         %1000 cm^2/V.s
+Vt = 0.026;       % Thermal Voltage
+D = Vt*mu;        %By Einsten's relation at room temperature
+
+%% Parameters for solving problem in the interval 0 < x < L
+%Simulation array
+L = 10e-6;
+N = 100;
+x = linspace(0,L,N); %Coordinate vector
+dx = L/(N-1);     
+rho = zeros(1,N);    %Charge density
+Nd = zeros(1,N);     %Doping at each position
+n = zeros(1,N);      %Electron density at each position
+p = zeros(1,N);      %Hole density at each position
+V = zeros(1,N);      %Potential
+SG = zeros(1,N);     %Scharfetter-Gummel factor
+V_new = V;
+
+%% Defining initial and boundary conditions
+%Fixed doping does not change, Full ionization
+Nd(1:N/2) = DOP;
+Nd(N/2 +1:N) = -DOP;
+
+%Boundary conditions for carriers
+n(1) = DOP;
+p(1) = ni^2/DOP;
+n(N) = ni^2/DOP;
+p(N) = DOP;
+
+%Initial condition for carriers
+n(2:N/2) = DOP/2;
+p(N/2 + 1:N-1) = DOP/2;
+
+figure();
+plot(x,Nd);
+hold on
+plot(x,n);
+hold on
+plot(x,p);
+title('Doping desity and intial guess of n and p');
+xlabel('x');
+ylabel('Density in m^-3');
+legend('Doping Concentration','n - electron desity','p - hole density','Location','Southeast');
+grid on;
+count = 0; % Number of iterations for solution to converge
+
+%% Iterations 
+%Three-point finite-difference representation of Laplacian
+Lap = -2.*diag(ones(N,1),0) + diag(ones(N-1,1),1) + diag(ones(N-1,1),-1); %Three-point finite-difference representation of Laplacian
+Lap(1,1) = -2;
+Lap(N,N) = -1;
+
+while 1
+    rho = Nd-n+p; %Charge density
+    rho(N) = rho(N)/2; %For Neumann boundary condition at x=L
+    
+    V_mat = (-1*inv(Lap)*rho')'; 
+    V_new = -(q/eps)*dx^2*V_mat;
+    err = 100*max(abs((V_new-V)/V_new));
+    V = V_new;
+    
+    %Calculate Scharfetter-Gummel factor
+    for idx = 2:N-1
+        sg = (V(idx+1) - V(idx-1))/(2*Vt);
+        if sg>2
+            sg = 4;
+        end 
+        SG(idx) = exp(sg);
+        n(idx) = (n(idx-1)*SG(idx)+n(idx+1)/SG(idx))/2;
+        p(idx) = (p(idx-1)/SG(idx)+p(idx+1)*SG(idx))/2;
+    end
+    count = count+1;
+    if err<0.01
+        break
+    end
+end
+
+%% Plotting the results
+display(count); 
+
+figure()
+plot(x,SG);
+title('Scharfetter-Gummel factor v/s x')
+ylabel('Scharfetter-Gummel factor');
+xlabel('x');
+legend('Scharfetter-Gummel factor','Location','Southeast');
+grid on;
+
+figure()
+plot(x,V);
+title('Voltage profile in the diode')
+ylabel('Voltage (in V)');
+xlabel('x');
+legend('Voltage','Location','Southeast');
+grid on;
+
+figure()
+plot(x,n);
+hold on
+plot(x,p);
+title('Hole and electron density profile in the diode')
+ylabel('Density (in m^-3)');
+xlabel('x');
+legend('Electron Density','Hole Density','Location','Southeast');
+grid on;
+
+figure()
+plot(x,rho);
+title('Charge Density')
+ylabel('Charge Density (in m^-3)');
+xlabel('x');
+legend('Charge Density','Location','Southeast');
+grid on;
+
+    
+
+
