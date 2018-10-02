@@ -1,5 +1,5 @@
 N=1000;
-L=1e-9;
+L=2;
 x=linspace(-L,L,N)';
 dx=x(2)-x(1);
 
